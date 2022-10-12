@@ -1,6 +1,14 @@
 # tp-api-node
 Taller web 2. API en node.js usando express.js. Base de datos mysql
 
+Primero con el script sql crear la base y tablas.
+
+
+Sobre el directorio del proyecto:
+-npm install
+-npm install -g nodemon
+-nodemon
+
 Se abrirá por defecto en http://localhost:3050
 
 
