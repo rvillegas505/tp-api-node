@@ -16,12 +16,12 @@ app.use(bodyPaser.json());
 let connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'abcd',
+    password: '1234',
     database: 'tptaller'
 });
 
 //======================================
-//Rutas API
+//Rutas API Productos
 //======================================
 app.get('/', (req, res) =>{
     res.send('API!');
@@ -72,6 +72,61 @@ app.post('/crearProducto', (req, res) => {
     connection.query(sql, productoObj, error => {
         if (error) throw error;
         res.send('Producto creado.');
+    });
+});
+
+//Actualizar producto
+app.put('/actualizarProducto/:id', (req, res) => {
+    const { id } = req.params;
+    if( req.body.nombre != null 
+        && req.body.precio != null 
+        && req.body.img != null 
+        && req.body.descripcion != null
+        && req.body.clasificacion != null){
+        const { nombre, precio, img, descripcion, clasificacion } = req.body;
+        const productoObj = {
+            nombre, 
+            precio, 
+            img, 
+            descripcion, 
+            clasificacion
+        };
+        const sql = `UPDATE productos 
+                    SET nombre = '${nombre}',precio = '${precio}',
+                    img = '${img}',descripcion = '${descripcion}',clasificacion = '${clasificacion}'
+                    WHERE id = '${id}'`;
+        connection.query(sql, productoObj, error => {
+            if (error) throw error;
+            res.send('Producto actualizado.');
+        });
+    } else {
+        if (error) throw error;
+        res.send('No se encontro ningun producto');
+    }
+});
+
+//Borrar un producto
+app.delete('/borrarProducto/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = `DELETE FROM PRODUCTOS WHERE id = '${id}'`;
+    connection.query(sql, (error, resultado) => {
+        if (error) throw error;
+        res.send('Producto Borrado');
+    });
+});
+
+
+//ultimoProducto
+app.get('/ultimoProducto', (req, res) => {
+    const sql = 'SELECT * FROM PRODUCTOS ORDER BY id DESC LIMIT 1';
+
+    connection.query(sql, (error, resultados) => {
+        if (error) throw error;
+        if (resultados.length > 0 ){
+            res.json(resultados);
+        } else {
+            res.send('No se encontraron productos');
+        }
     });
 });
 
