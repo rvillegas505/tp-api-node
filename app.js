@@ -20,6 +20,11 @@ let connection = mysql.createConnection({
     database: 'tptaller'
 });
 
+//Configuracion de cognito
+var poolData = {
+    UserPoolId: "us-east-1_mAolZ5VrD",
+    ClientId:"2agsnegmb1t54jjnvofdsk4n2l"
+  };
 //======================================
 //Rutas API Productos
 //======================================
@@ -130,7 +135,9 @@ app.get('/ultimoProducto', (req, res) => {
     });
 });
 
-
+//======================================
+//Rutas API Cognito
+//======================================
 
 //check conexion
 connection.connect(error => {
