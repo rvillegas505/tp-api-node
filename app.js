@@ -30,7 +30,7 @@ var poolData = {
     ClientId: "2agsnegmb1t54jjnvofdsk4n2l"
 };
 
-
+var userPool = new CognitoUserPool(poolData);
 
 //======================================
 //Rutas API Productos
@@ -169,7 +169,7 @@ app.post('/registrarUsuario', (req, res) => {
         address: req.body.address
 
     };
-
+    
    var attributeList = [];
 
    attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({ Name: "name", Value:usuarioObj.name}));
@@ -181,15 +181,19 @@ app.post('/registrarUsuario', (req, res) => {
     userPool.signUp(usuarioObj.email, usuarioObj.pass, attributeList, null, function(err, result){
         if (err) {
             console.log(err);
-            console.log('Ya existe usuario:');
+            console.log('Ya existe usuario: '+ usuarioObj.email);
+            res.send('Ya existe usuario con mail: ' + usuarioObj.email);
             return;
         }
+        cognitoUser = result.user;
+       
         connection.query(sql, usuarioObj, error => {
             if (error) throw error + 'Error al registrar usuario2';
-            res.send('Usuario creado.');
+            res.send('Usuario creado. Se envio un mail de confirmacion a: ' + usuarioObj.email);
         });
-        cognitoUser = result.user;
-        console.log('user name is ' + cognitoUser.getUsername());
+
+        res.send('Usuario creado. Se envio un mail de confirmacion a: ' + usuarioObj.email);
+        console.log('Usuario creado. Se envio un mail de confirmacion a: ' + usuarioObj.email);
     });
 });
 
@@ -200,8 +204,6 @@ app.post('/login', (req, res) => {
         Username : req.body.email,
         Password : req.body.pass,
     };
-
-    var userPool = new CognitoUserPool(poolData);
 
     var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
     var userData = {
