@@ -158,7 +158,7 @@ app.post('/comprar', function (req, res) {
 
         data.forEach(function (item) {
             respuestaAPI.push(item.data.id);
-            const sql = `INSERT INTO VENTAS (id_venta, id_producto) VALUES (${resultadoID}, ${item.data.id});`;
+            const sql = `INSERT INTO VENTAS (id_venta, id_producto, cantidad) VALUES (${resultadoID}, ${item.data.id}, ${item.cantidad});`;
             connection.query(sql, error => {
             if (error) throw error;
             });
