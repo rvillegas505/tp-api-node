@@ -2,21 +2,23 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
 
-const bodyPaser = require('body-parser');
+const bodyParser = require('body-parser');
 
 const PORT = process.env.PORT || 3050;
 
 const app = express();
+
 app.use(cors());
 
-app.use(bodyPaser.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 //MySQL conexion 
 let connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '1234',
+    password: 'abcd',
     database: 'tptaller'
 });
 
@@ -130,6 +132,41 @@ app.get('/ultimoProducto', (req, res) => {
     });
 });
 
+//Crear nuevo venta
+app.post('/crearVenta', (req, res) => {
+    const sql = 'INSERT INTO VENTA SET ?';
+
+    const productoObj = {
+        idProducto: req.body.idProducto,
+    };
+
+    connection.query(sql, productoObj, error => {
+        if (error) throw error;
+        res.send('Producto creado.');
+    });
+});
+
+
+app.post('/comprar', function (req, res) {
+   var data = req.body;
+   let respuestaAPI = [];
+   let resultadoID;
+
+   connection.query('INSERT INTO NUM_VENTA VALUES ();', function(error, result) {
+    if (error) throw error;
+    resultadoID = result.insertId;
+
+        data.forEach(function (item) {
+            respuestaAPI.push(item.data.id);
+            const sql = `INSERT INTO VENTAS (id_venta, id_producto, cantidad) VALUES (${resultadoID}, ${item.data.id}, ${item.cantidad});`;
+            connection.query(sql, error => {
+            if (error) throw error;
+            });
+        });
+    });
+   res.send('venta creada');
+
+}); 
 
 
 //check conexion
