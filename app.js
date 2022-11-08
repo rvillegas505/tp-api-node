@@ -180,19 +180,18 @@ app.post('/registrarUsuario', (req, res) => {
 
     userPool.signUp(usuarioObj.email, usuarioObj.pass, attributeList, null, function(err, result){
         if (err) {
-            console.log(err);
-            console.log('Ya existe usuario: '+ usuarioObj.email);
-            res.send('Ya existe usuario con mail: ' + usuarioObj.email);
+            console.log('Error: ' + err.message || JSON.stringify(err));
+            res.send('Ya existe usuario con mail: ' + usuarioObj.email +'  Error:'+ JSON.stringify(err.message));           
             return;
         }
         cognitoUser = result.user;
        
         connection.query(sql, usuarioObj, error => {
             if (error) throw error + 'Error al registrar usuario2';
-            res.send('Usuario creado. Se envio un mail de confirmacion a: ' + usuarioObj.email);
+            res.send('Usuario creado. Se envio un maaaaaaaaaaaail de confirmacion a: ' + usuarioObj.email);
         });
 
-        res.send('Usuario creado. Se envio un mail de confirmacion a: ' + usuarioObj.email);
+        res.send('Usuario creado. Se envio un mail de confirmacionnnnnnnn a: ' + usuarioObj.email);
         console.log('Usuario creado. Se envio un mail de confirmacion a: ' + usuarioObj.email);
     });
 });
@@ -215,8 +214,18 @@ app.post('/login', (req, res) => {
     cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: function (result) {
             var accessToken = result.getAccessToken().getJwtToken();
+            var idToken = result.idToken.jwtToken;
+            var refreshToken = result.refreshToken.token;
+            console.log('access token + ' + accessToken);
+            console.log('id token + ' + idToken);
+            console.log('refresh token + ' + refreshToken);
             console.log('Usuario logueado.');
+            
+
+
+            res.locals.user = cognitoUser;
             res.send('Usuario logueado.');
+
         },
 
         onFailure: function(err) {
@@ -227,6 +236,48 @@ app.post('/login', (req, res) => {
     });
 });
 
+//USUARIO ACTUAL LOGUEADO
+app.get('/usuarioActual', (req, res) => {
+
+    var sessionUsuario = {};
+
+    var cognitoUser = userPool.getCurrentUser();
+    if (cognitoUser != null) {
+        cognitoUser.getSession(function(err, session) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            cognitoUser.getUserAttributes(function(err, result) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                for (i = 0; i < result.length; i++) {
+                    sessionUsuario[result[i].getName()] = result[i].getValue();
+                    //console.log(JSON.stringify(result[i].getName()+': '+result[i].getValue()));
+                    //console.log(result[i].getName() + ':' + result[i].getValue());
+                }
+                Window.localStorage.setItem('sessionUsuario', JSON.stringify(sessionUsuario));
+                console.log('Usuario actual logueado: ' + JSON.stringify(sessionUsuario));
+                res.send(JSON.stringify(sessionUsuario));
+            });
+            
+        });
+    }
+
+    //console.log('usuario actual: ' + cognitoUser.getUsername());
+    
+});
+
+//DESLOGUEAR USUARIO
+app.post('/logout', (req, res) => {
+    var cognitoUser = userPool.getCurrentUser();
+    cognitoUser.signOut();
+    console.log('Usuario deslogueado.');
+    res.send("Deslogueado");
+});
 
 //Obtener usuario por email
 app.get('/obtenerUsuarioPorEmail/:email', (req, res) => {
@@ -244,7 +295,18 @@ app.get('/obtenerUsuarioPorEmail/:email', (req, res) => {
 } );
 
 
-
+//DESLOGUEAR USUARIO
+app.post('/desloguear', (req, res) => {
+    var cognitoUser = userPool.getCurrentUser();
+    if (cognitoUser != null) {
+        cognitoUser.signOut();
+        console.log('Usuario deslogueado.');
+        res.send('Usuario deslogueado.');
+    }else{
+        console.log('No hay usuario logueado.');
+        res.send('No hay usuario logueado.');
+    }
+});
 
 //check conexion
 connection.connect(error => {
