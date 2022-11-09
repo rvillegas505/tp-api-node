@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 let connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'abcd',
+    password: '1234',
     database: 'tptaller'
 });
 
@@ -302,7 +302,6 @@ app.get('/usuarioActual', (req, res) => {
                     //console.log(JSON.stringify(result[i].getName()+': '+result[i].getValue()));
                     //console.log(result[i].getName() + ':' + result[i].getValue());
                 }
-                Window.localStorage.setItem('sessionUsuario', JSON.stringify(sessionUsuario));
                 console.log('Usuario actual logueado: ' + JSON.stringify(sessionUsuario));
                 res.send(JSON.stringify(sessionUsuario));
             });
