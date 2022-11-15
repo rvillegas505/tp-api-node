@@ -259,12 +259,7 @@ app.post('/login', (req, res) => {
             var accessToken = result.getAccessToken().getJwtToken();
             var idToken = result.idToken.jwtToken;
             var refreshToken = result.refreshToken.token;
-            console.log('access token + ' + accessToken);
-            console.log('id token + ' + idToken);
-            console.log('refresh token + ' + refreshToken);
             console.log('Usuario logueado.');
-            
-
 
             res.locals.user = cognitoUser;
             res.send('Usuario logueado.');
@@ -273,7 +268,7 @@ app.post('/login', (req, res) => {
 
         onFailure: function(err) {
             console.log('Logueo Error: ' + err.message);
-            res.send('Logueo Error: '+ err.message);
+            res.send(JSON.stringify(err.message));
         },
 
     });
@@ -329,9 +324,11 @@ app.get('/obtenerUsuarioPorEmail/:email', (req, res) => {
     connection.query(sql, (error, resultado) => {
         if (error) throw error;
         if (resultado.length > 0) {
-            res.json(resultado);
+            res.send(JSON.stringify(resultado));
+            console.log('Usuario obtenido por email: ' + JSON.stringify(resultado));
         } else {
-            res.send('No se encontro ningun usuario');
+            console.log('No existe usuario con email: ' + email);
+            res.send('No se encontro ningun usuario con email: ' + email);
         }
     });
 } );
