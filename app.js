@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 let connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '1234',
+    password: 'abcd',
     database: 'tptaller'
 });
 
@@ -178,8 +178,9 @@ app.post('/comprar', function (req, res) {
    var data = req.body;
    let respuestaAPI = [];
    let resultadoID;
-
-   connection.query('INSERT INTO NUM_VENTA VALUES ();', function(error, result) {
+     //IMPORTANTE, ahora esta registrando con ID 1 de USUARIO a todas las ventas, la idea es usar algun atributo
+     // del USUARIO como email, id o lo que sea para registrarlo, depende cual sea vamos a tener que modificar la tabla
+   connection.query('INSERT INTO NUM_VENTA (id_usuario) VALUES (1);', function(error, result) {
     if (error) throw error;
     resultadoID = result.insertId;
 
@@ -194,6 +195,30 @@ app.post('/comprar', function (req, res) {
    res.send('venta creada');
 
 }); 
+
+
+//Traer compras de usuario 
+app.get('/compras/:id', (req, res) => {
+    const {
+        id
+    } = req.params;
+
+    const sql = `SELECT NUM_VENTA.id, PRODUCTOS.nombre, VENTAS.cantidad  
+    FROM NUM_VENTA 
+    INNER JOIN VENTAS on NUM_VENTA.id=VENTAS.id_venta
+    INNER JOIN PRODUCTOS on VENTAS.id_producto=PRODUCTOS.id
+    WHERE id_usuario = ${id}`;
+    
+    connection.query(sql, (error, resultado) => {
+        if (error) throw error;
+        if (resultado.length > 0) {
+            res.json(resultado);
+        } else {
+            res.send('No se encontro ningun producto');
+        }
+    });
+
+});
 
 //======================================
 //Rutas API Cognito
