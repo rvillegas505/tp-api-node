@@ -203,17 +203,14 @@ app.post('/comprar', function (req, res) {
 
 }); 
 
-
-//Traer compras de usuario 
+//retorna id de compras de usuario 
 app.get('/compras/:id', (req, res) => {
     const {
         id
     } = req.params;
 
-    const sql = `SELECT NUM_VENTA.id, PRODUCTOS.nombre, VENTAS.cantidad  
+    const sql = `SELECT NUM_VENTA.id  
     FROM NUM_VENTA 
-    INNER JOIN VENTAS on NUM_VENTA.id=VENTAS.id_venta
-    INNER JOIN PRODUCTOS on VENTAS.id_producto=PRODUCTOS.id
     WHERE id_usuario = ${id}`;
     
     connection.query(sql, (error, resultado) => {
@@ -221,11 +218,55 @@ app.get('/compras/:id', (req, res) => {
         if (resultado.length > 0) {
             res.json(resultado);
         } else {
-            res.send('No se encontro ningun producto');
+            res.send('No se encontro ningun compra para el usuario');
         }
     });
-
 });
+
+//retorna productos de la compra 
+app.get('/compraProductos/:id', (req, res) => {
+    const {
+        id
+    } = req.params;
+
+    const sql = `SELECT VENTAS.id_producto, PRODUCTOS.nombre, VENTAS.cantidad  
+    FROM  VENTAS
+    INNER JOIN PRODUCTOS on VENTAS.id_producto=PRODUCTOS.id
+    WHERE VENTAS.id_venta = ${id}`;
+    
+    connection.query(sql, (error, resultado) => {
+        if (error) throw error;
+        if (resultado.length > 0) {
+            res.json(resultado);
+        } else {
+            res.send('No se encontro ninguna compra con el id');
+        }
+    });
+});
+
+
+// //Traer compras de usuario 
+// app.get('/compras/:id', (req, res) => {
+//     const {
+//         id
+//     } = req.params;
+
+//     const sql = `SELECT NUM_VENTA.id, PRODUCTOS.nombre, VENTAS.cantidad  
+//     FROM NUM_VENTA 
+//     INNER JOIN VENTAS on NUM_VENTA.id=VENTAS.id_venta
+//     INNER JOIN PRODUCTOS on VENTAS.id_producto=PRODUCTOS.id
+//     WHERE id_usuario = ${id}`;
+    
+//     connection.query(sql, (error, resultado) => {
+//         if (error) throw error;
+//         if (resultado.length > 0) {
+//             res.json(resultado);
+//         } else {
+//             res.send('No se encontro ningun producto');
+//         }
+//     });
+
+// });
 
 //======================================
 //Rutas API Cognito
