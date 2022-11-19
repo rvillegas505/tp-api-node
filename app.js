@@ -178,18 +178,25 @@ app.post('/comprar', function (req, res) {
    var data = req.body;
    let respuestaAPI = [];
    let resultadoID;
-     //IMPORTANTE, ahora esta registrando con ID 1 de USUARIO a todas las ventas, la idea es usar algun atributo
-     // del USUARIO como email, id o lo que sea para registrarlo, depende cual sea vamos a tener que modificar la tabla
-   connection.query('INSERT INTO NUM_VENTA (id_usuario) VALUES (1);', function(error, result) {
+
+
+   //Por defecto en el front envia el id usuario a lo ultimo del body de la data
+   //Lo leemos de la siguiente manera
+   longitudData = data.length;
+   usuarioID = data[longitudData-1].usuarioId;
+
+   connection.query(`INSERT INTO NUM_VENTA (id_usuario) VALUES (${usuarioID});`, function(error, result) {
     if (error) throw error;
     resultadoID = result.insertId;
 
         data.forEach(function (item) {
-            respuestaAPI.push(item.data.id);
-            const sql = `INSERT INTO VENTAS (id_venta, id_producto, cantidad) VALUES (${resultadoID}, ${item.data.id}, ${item.cantidad});`;
-            connection.query(sql, error => {
-            if (error) throw error;
-            });
+            if (item.data?.id){
+                respuestaAPI.push(item.data.id);
+                const sql = `INSERT INTO VENTAS (id_venta, id_producto, cantidad) VALUES (${resultadoID}, ${item.data.id}, ${item.cantidad});`;
+                connection.query(sql, error => {
+                if (error) throw error;
+                });
+            }
         });
     });
    res.send('venta creada');
