@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 let connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'abcd',
+    password: '1234',
     database: 'tptaller'
 });
 
@@ -233,8 +233,6 @@ app.get('/compras/:id', (req, res) => {
 
 //Registrar usuario
 app.post('/registrarUsuario', (req, res) => {
-    const sql = 'INSERT INTO USUARIO SET ?';
-
     const usuarioObj = {
         name: req.body.name,
         family_name: req.body.family_name,
@@ -256,18 +254,31 @@ app.post('/registrarUsuario', (req, res) => {
     userPool.signUp(usuarioObj.email, usuarioObj.pass, attributeList, null, function(err, result){
         if (err) {
             console.log('Error: ' + err.message || JSON.stringify(err));
-            res.send('Ya existe usuario con mail: ' + usuarioObj.email +'  Error:'+ JSON.stringify(err.message));           
+            res.send(JSON.stringify(err.message));           
             return;
         }
         cognitoUser = result.user;
-       
-        connection.query(sql, usuarioObj, error => {
-            if (error) throw error + 'Error al registrar usuario2';
-            res.send('Usuario creado. Se envio un maaaaaaaaaaaail de confirmacion a: ' + usuarioObj.email);
-        });
-
-        res.send('Usuario creado. Se envio un mail de confirmacionnnnnnnn a: ' + usuarioObj.email);
+        res.send(JSON.stringify('Usuario creado. Se envio un mail de confirmacion'));
         console.log('Usuario creado. Se envio un mail de confirmacion a: ' + usuarioObj.email);
+    });
+});
+
+app.post('/guardarUsuarioEnBBDD', (req, res) => {
+    const sql = 'INSERT INTO USUARIO SET ?';
+
+    const usuarioObj = {
+        name: req.body.name,
+        family_name: req.body.family_name,
+        nickname: req.body.nickname,
+        email: req.body.email,
+        pass: req.body.pass,
+        address: req.body.address
+
+    };
+
+    connection.query(sql, usuarioObj, error => {
+        if (error) throw error + 'Error al registrar usuario2';
+        res.send('Usuario creado. Se envio un maaaaaaaaaaaail de confirmacion a: ' + usuarioObj.email);
     });
 });
 
@@ -294,13 +305,13 @@ app.post('/login', (req, res) => {
             console.log('Usuario logueado.');
 
             res.locals.user = cognitoUser;
-            res.send('Usuario logueado.');
+            res.send(JSON.stringify('Usuario logueado.'));
 
         },
 
         onFailure: function(err) {
             console.log('Logueo Error: ' + err.message);
-            res.send(JSON.stringify(err.message));
+            res.send(JSON.stringify(JSON.stringify(err.message)));
         },
 
     });
